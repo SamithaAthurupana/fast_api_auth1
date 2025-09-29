@@ -1,4 +1,5 @@
 from email.policy import default
+from typing import List
 
 from fastapi import APIRouter, status, HTTPException
 from model import UserResponse, UserCreate
@@ -46,3 +47,7 @@ def patch_user(user_id: int, user: UserCreate):
         return {"message": "User Patched successfully", "patch_user": patch_user}
     except UserServiceException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = str(e))
+
+@router.get("/", response_model=List[UserResponse])
+def get_all_users(offset: int = 0, limit: int = 10) -> List[UserResponse]:
+    return user_service.get_all_users(offset, limit)

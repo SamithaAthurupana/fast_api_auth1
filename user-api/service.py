@@ -1,6 +1,6 @@
 from datetime import datetime
 from http.client import HTTPException
-from typing import Dict
+from typing import Dict, List
 from model import UserResponse, UserCreate, UserPatch
 
 
@@ -59,3 +59,7 @@ class UserService:
         self.users[user_id] = updated_user                                  #
 
         return self.users[user_id]
+
+    def get_all_users(self, offset: int, limit:int ) -> List[UserResponse]: #from record 10 up to 10
+        users = [user for user in self.users.values()]
+        return users[offset:offset + limit]
