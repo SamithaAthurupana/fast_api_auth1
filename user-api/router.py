@@ -21,7 +21,7 @@ def get_user(user_id: int) -> UserResponse:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}")
 def update_user(user_id: int, user: UserCreate):
     try:
         updated_user = user_service.update_user(user_id, user)
