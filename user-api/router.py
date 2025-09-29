@@ -1,3 +1,5 @@
+from email.policy import default
+
 from fastapi import APIRouter, status, HTTPException
 from model import UserResponse, UserCreate
 from service import UserService, UserServiceException
@@ -36,3 +38,11 @@ def delete_user(user_id: int):
         return {"message": f"Successfully deleted User - {user.email}"}
     except UserServiceException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.patch("/{user_id}")
+def patch_user(user_id: int, user: UserCreate):
+    try:
+        patch_user = user_service.patch_user(user_id, user)
+        return {"message": "User Patched successfully", "patch_user": patch_user}
+    except UserServiceException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = str(e))
