@@ -31,6 +31,14 @@ def create_product(product:Product):
     products[product.id] = product
     return {"message": "successfully product added", "product": product}
 
+@app.put("/products/{product_id}")
+def update_product(product_id:str, product: Product):
+    if product_id not in products.keys():
+        raise HTTPException(status_code=404, detail="product id not found!")
+    products[product_id] = product
+    return {"message": "successfully updated successfully", "product": product }
+
+
 @app.delete("/products/{product_id}")
 def delete_product(product_id: str):
     if product_id not in products.keys():
