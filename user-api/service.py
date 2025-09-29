@@ -1,4 +1,5 @@
 from datetime import datetime
+from http.client import HTTPException
 from typing import Dict
 from model import UserResponse, UserCreate
 
@@ -21,6 +22,22 @@ class UserService:
         self.users[self.counter] = user_resp
         self.counter += 1
         return user_resp
+
+    def update_user(self, user_id:int, user: UserCreate) -> UserResponse:
+        if user_id not in self.users.keys():
+            raise UserServiceException("Invalid user id!")
+        existing_user = self.users[user_id]
+
+        self.users[user_id] = UserResponse(
+            id = user_id,
+            email=user.email,
+            age=user.age,
+            role=user.role,
+            name=user.name,
+            created_at=existing_user.created_at,
+            updated_at=datetime.now()
+        )
+        return self.users[user_id]
 
     def get_user(self, user_id: int) -> UserResponse:
         return self.users.get(user_id)
