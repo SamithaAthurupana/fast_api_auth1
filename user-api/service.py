@@ -49,17 +49,36 @@ class UserService:
         user = self.users.pop(user_id)
         return user
 
-    def patch_user(self, user_id:int, user:UserPatch):
-        if user_id not in self.users.keys():
+    def patch_user(self, user_id: int, user: UserPatch) -> UserResponse:
+        if user_id not in self.users:
             raise UserServiceException("User ID not found for patching")
 
-        existing_user = self.users[user_id]
-        updated_data = user.model_dump(exclude_unset=True) # Creating a dictionary using the UserPatch instance
-        updated_user = existing_user.model_copy(update=updated_data) # Copying the UserResponse
-        self.users[user_id] = updated_user                                  #
+        existing_user: UserResponse = self.users[user_id]
 
-        return self.users[user_id]
+        # If email is being patched, check uniqueness against other users
+        patch_data = user.model_dump(exclude_unset=True)
+        new_email = patch_data.get("email")
+        if new_email and new_email != existing_user.email:
+            for uid, u in self.users.items():
+                if uid != user_id and u.email == new_email:
+                    raise UserServiceException("Email already Exists!")
 
-    def get_all_users(self, offset: int, limit:int ) -> List[UserResponse]: #from record 10 up to 10
-        users = [user for user in self.users.values()]
-        return users[offset:offset + limit]
+        # Create updated user copy and ensure updated_at is changed
+        updated_user = existing_user.model_copy(update=patch_data)
+        updated_user.updated_at = datetime.now()
+
+        self.users[user_id] = updated_user
+        return updated_user
+
+    def get_all_users(self, offset: int = 0, limit: int = 10) -> List[UserResponse]:
+        # sanitize inputs
+        if offset < 0:
+            raise UserServiceException("Offset must be >= 0")
+        if limit <= 0:
+            raise UserServiceException("Limit must be > 0")
+        max_limit = 100
+        if limit > max_limit:
+            limit = max_limit
+
+        users_list = list(self.users.values())  # preserves insertion order (py3.7+)
+        return users_list[offset: offset + limit]
