@@ -1,6 +1,7 @@
 from dataclasses import field
 from datetime import datetime
-from typing import Optional
+from itertools import product
+from typing import Optional, List, Dict
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -40,5 +41,26 @@ class UserPatch(BaseModel):
 
 class UserResponse(UserCreate):
     id: int
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
+
+
+
+class ProductCreate(BaseModel):
+    name:str = Field(..., min_length=2, max_length=100)
+    description: str =Field(..., min_length=4, max_length=300)
+    price: float = Field(..., ge=0)
+    category: str = Field(..., min_length=2, max_length=100)
+    tags: List[str] = Field(default_factory=list)
+
+    @field_validator('tags')
+    def validate_tags(cls, v:List[str]) -> List[str]:
+        if len(v) > 10:
+            raise ValueError("you can't add 10 more tags")
+        return v
+
+class ProductResponse(ProductCreate):
+    id : int
+    created_at: datetime
+    updated_at: datetime
+
