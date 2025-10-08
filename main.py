@@ -43,7 +43,7 @@ def update_student(student_id:str, student: Student):
 @app.delete("/students/{student_id}")
 def delete_student(student_id:str):
     if student_id not in students.keys():
-        raise HTTPException(status_code=404, detail="Student id not found to delete!")
+        raise HTTPException(status_code=404, detail="Student id not found to delete!!")
     deleted_std = students.pop(student_id)
 
     return {"message": "successfully deleted", "student": deleted_std }
